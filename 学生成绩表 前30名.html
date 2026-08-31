@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>学生成绩表</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  padding: 24px;
+}
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+}
+.header {
+  text-align: center;
+  margin-bottom: 28px;
+}
+.header h1 {
+  color: #fff;
+  font-size: 28px;
+  font-weight: 700;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  letter-spacing: 2px;
+}
+.header p {
+  color: rgba(255,255,255,0.8);
+  margin-top: 6px;
+  font-size: 14px;
+}
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.stat-card {
+  background: rgba(255,255,255,0.95);
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+.stat-card .num {
+  font-size: 24px;
+  font-weight: 800;
+}
+.stat-card .num.purple { color: #667eea; }
+.stat-card .num.red { color: #e74c3c; }
+.stat-card .num.green { color: #27ae60; }
+.stat-card .num.orange { color: #f39c12; }
+.stat-card .label {
+  font-size: 12px;
+  color: #888;
+  margin-top: 4px;
+}
+.search-box {
+  margin-bottom: 16px;
+}
+.search-box input {
+  width: 100%;
+  padding: 12px 18px;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  background: rgba(255,255,255,0.95);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+  outline: none;
+}
+.table-wrap {
+  background: rgba(255,255,255,0.98);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+thead tr {
+  background: linear-gradient(90deg, #667eea, #764ba2);
+  color: #fff;
+}
+th {
+  padding: 14px 10px;
+  text-align: center;
+  font-weight: 600;
+  cursor: pointer;
+  user-select: none;
+}
+th:hover {
+  background: rgba(255,255,255,0.15);
+}
+td {
+  padding: 11px 10px;
+  text-align: center;
+}
+td.name {
+  text-align: left;
+  font-weight: 600;
+  color: #333;
+}
+td.id {
+  color: #667eea;
+  font-weight: 600;
+  font-family: monospace;
+}
+td.idx {
+  color: #888;
+  font-weight: 500;
+}
+td.score {
+  color: #555;
+}
+td.total {
+  font-weight: 800;
+  font-size: 14px;
+}
+tbody tr {
+  transition: background 0.2s;
+}
+tbody tr:nth-child(even) {
+  background: #f8f9ff;
+}
+tbody tr:hover {
+  background: #eef2ff;
+}
+.footer {
+  text-align: center;
+  margin-top: 16px;
+  color: rgba(255,255,255,0.6);
+  font-size: 12px;
+}
+@media print {
+  body { background: #fff; padding: 0; }
+  .header h1 { color: #333; text-shadow: none; }
+  .header p { color: #666; }
+  .stat-card { box-shadow: none; border: 1px solid #ddd; }
+  .search-box { display: none; }
+  .footer { display: none; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>📊 学生成绩表</h1>
+    <p>清晰 · 简洁 · 美观</p>
+  </div>
+  <div class="stats">
+    <div class="stat-card"><div class="num purple">31</div><div class="label">总人数</div></div>
+    <div class="stat-card"><div class="num red">283</div><div class="label">最高分</div></div>
+    <div class="stat-card"><div class="num green">271</div><div class="label">最低分</div></div>
+    <div class="stat-card"><div class="num orange">276.5</div><div class="label">平均分</div></div>
+  </div>
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="🔍 搜索姓名或学号..." onkeyup="filterTable()">
+  </div>
+  <div class="table-wrap">
+    <table id="scoreTable">
+      <thead>
+        <tr>
+          <th onclick="sortTable(0)">序号 ↕</th>
+          <th onclick="sortTable(1)">学生ID ↕</th>
+          <th style="text-align:left;" onclick="sortTable(2)">姓名 ↕</th>
+          <th onclick="sortTable(3)">语文 ↕</th>
+          <th onclick="sortTable(4)">数学 ↕</th>
+          <th onclick="sortTable(5)">英语 ↕</th>
+          <th onclick="sortTable(6)">总分 ↕</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+  <div class="footer">点击表头可排序 · 输入关键词可筛选 · Ctrl+P 可打印</div>
+</div>
+<script>
+const data = [
+  [1,7670,"张允琛",101,103,79,283],
+  [2,7844,"刘志容",100,104,79,283],
+  [3,6738,"万锦航",100,107,76,283],
+  [4,7846,"胡博谦",102,110,71,283],
+  [5,7683,"刘羽恩",98,108,76,282],
+  [6,7586,"胡尹默",102,106,74,282],
+  [7,4968,"陈一帆",99,106,76,281],
+  [8,6695,"朱骏智",97,108,76,281],
+  [9,1956,"颜博贤",92,110,78,280],
+  [10,1940,"田美妍",99,106,75,280],
+  [11,7561,"罗梓琦",98,107,73,278],
+  [12,6616,"邓文宇",100,102,75,277],
+  [13,3361,"魏达旭",99,108,70,277],
+  [14,4888,"张婧涵",99,110,68,277],
+  [15,6623,"柳家祺",96,106,74,276],
+  [16,2868,"赵梦洁",104,100,72,276],
+  [17,6419,"胡睿卿",101,96,78,275],
+  [18,7315,"易筠溪",104,95,76,275],
+  [19,5241,"黄一凡",106,98,71,275],
+  [20,3657,"李芷琪",102,102,70,274],
+  [21,3755,"黄皓月",99,99,75,273],
+  [22,3897,"唐璐遥",100,99,74,273],
+  [23,831,"周映徽",100,94,78,272],
+  [24,6246,"卢凯恩",94,101,77,272],
+  [25,939,"王佳怡",104,93,75,272],
+  [26,7486,"王墨然",103,98,71,272],
+  [27,8008,"胡悠然",102,95,74,271],
+  [28,3444,"刘浩庭",99,99,73,271],
+  [29,3608,"王之沫",100,98,73,271],
+  [30,4826,"熊家豪",98,102,71,271],
+  [31,6288,"胡依然",99,101,71,271]
+];
+let sortDir = {};
+function getTotalColor(total) {
+  if (total >= 282) return '#e74c3c';
+  if (total >= 277) return '#f39c12';
+  if (total >= 273) return '#27ae60';
+  return '#333';
+}
+function renderTable(rows) {
+  const tbody = document.getElementById('tableBody');
+  tbody.innerHTML = '';
+  rows.forEach((row, idx) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="idx">${row[0]}</td>
+      <td class="id">${row[1]}</td>
+      <td class="name">${row[2]}</td>
+      <td class="score">${row[3]}</td>
+      <td class="score">${row[4]}</td>
+      <td class="score">${row[5]}</td>
+      <td class="total" style="color:${getTotalColor(row[6])}">${row[6]}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+function sortTable(col) {
+  sortDir[col] = !sortDir[col];
+  const dir = sortDir[col] ? 1 : -1;
+  const sorted = [...data].sort((a, b) => {
+    if (typeof a[col] === 'string') return dir * a[col].localeCompare(b[col], 'zh');
+    return dir * (a[col] - b[col]);
+  });
+  renderTable(sorted);
+}
+function filterTable() {
+  const val = document.getElementById('searchInput').value.trim().toLowerCase();
+  if (!val) { renderTable(data); return; }
+  const filtered = data.filter(row => row[2].includes(val) || String(row[1]).includes(val));
+  renderTable(filtered);
+}
+renderTable(data);
+</script>
+</body>
+</html>
