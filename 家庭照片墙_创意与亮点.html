@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>家庭照片墙 —— 创意与亮点</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+            background: #1a1a2e;
+            color: #333;
+            overflow: hidden;
+        }
+        .slide {
+            width: 100vw;
+            height: 100vh;
+            display: none;
+            padding: 60px 80px;
+            position: relative;
+            animation: fadeIn 0.6s ease;
+        }
+        .slide.active { display: flex; flex-direction: column; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 封面 */
+        .slide-cover {
+            background: linear-gradient(135deg, #f5e6d3 0%, #e8d5c4 50%, #d4a574 100%);
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+        .slide-cover .icon { font-size: 80px; margin-bottom: 30px; }
+        .slide-cover h1 {
+            font-size: 72px;
+            color: #5c3d2e;
+            letter-spacing: 8px;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+        .slide-cover .subtitle {
+            font-size: 28px;
+            color: #8b5e3c;
+            margin-bottom: 50px;
+            letter-spacing: 4px;
+        }
+        .slide-cover .badge {
+            display: inline-flex;
+            gap: 40px;
+            background: rgba(255,255,255,0.6);
+            padding: 20px 50px;
+            border-radius: 50px;
+            backdrop-filter: blur(10px);
+        }
+        .badge-item { text-align: center; }
+        .badge-item .num { font-size: 42px; font-weight: bold; color: #c75b39; }
+        .badge-item .label { font-size: 16px; color: #5c3d2e; margin-top: 5px; }
+
+        /* 内容页通用 */
+        .slide-content {
+            background: #faf6f1;
+        }
+        .slide-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #d4a574;
+        }
+        .slide-header .num {
+            font-size: 48px;
+            font-weight: bold;
+            color: #d4a574;
+            margin-right: 20px;
+            font-family: Georgia, serif;
+        }
+        .slide-header h2 {
+            font-size: 42px;
+            color: #5c3d2e;
+            font-weight: 600;
+        }
+
+        /* 卡片布局 */
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            flex: 1;
+            align-content: center;
+        }
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 35px;
+            box-shadow: 0 10px 40px rgba(92,61,46,0.08);
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: 1px solid rgba(212,165,116,0.2);
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 50px rgba(92,61,46,0.15);
+        }
+        .card .icon-box {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #d4a574, #c75b39);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin-bottom: 20px;
+            color: white;
+        }
+        .card h3 {
+            font-size: 24px;
+            color: #5c3d2e;
+            margin-bottom: 12px;
+        }
+        .card p {
+            font-size: 16px;
+            color: #666;
+            line-height: 1.8;
+        }
+
+        /* 两列布局 */
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 50px;
+            flex: 1;
+            align-items: center;
+        }
+        .text-col p {
+            font-size: 20px;
+            line-height: 2;
+            color: #555;
+            margin-bottom: 20px;
+        }
+        .highlight-box {
+            background: linear-gradient(135deg, #fff8f0, #ffecd2);
+            border-left: 5px solid #c75b39;
+            padding: 25px 30px;
+            border-radius: 0 16px 16px 0;
+            margin: 15px 0;
+        }
+        .highlight-box strong {
+            color: #c75b39;
+            font-size: 18px;
+        }
+
+        /* 特性列表 */
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 25px;
+            flex: 1;
+        }
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            background: white;
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        }
+        .feature-item .check {
+            width: 36px;
+            height: 36px;
+            background: #c75b39;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 18px;
+            flex-shrink: 0;
+            font-weight: bold;
+        }
+        .feature-item div h4 { font-size: 20px; color: #5c3d2e; margin-bottom: 6px; }
+        .feature-item div p { font-size: 15px; color: #777; line-height: 1.6; }
+
+        /* 页脚导航 */
+        .nav {
+            position: fixed;
+            bottom: 30px;
+            right: 40px;
+            display: flex;
+            gap: 15px;
+            z-index: 100;
+        }
+        .nav button {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 2px solid #d4a574;
+            background: white;
+            color: #5c3d2e;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .nav button:hover {
+            background: #d4a574;
+            color: white;
+        }
+        .page-indicator {
+            position: fixed;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.3);
+            color: white;
+            padding: 8px 24px;
+            border-radius: 20px;
+            font-size: 14px;
+            backdrop-filter: blur(10px);
+        }
+
+        /* 时间轴 */
+        .timeline {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            flex: 1;
+            padding: 0 40px;
+        }
+        .timeline-item {
+            text-align: center;
+            position: relative;
+        }
+        .timeline-item::after {
+            content: "";
+            position: absolute;
+            top: 40px;
+            right: -80px;
+            width: 120px;
+            height: 3px;
+            background: linear-gradient(to right, #d4a574, transparent);
+        }
+        .timeline-item:last-child::after { display: none; }
+        .timeline-item .circle {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #d4a574, #c75b39);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            margin: 0 auto 20px;
+            color: white;
+            box-shadow: 0 8px 25px rgba(199,91,57,0.3);
+        }
+        .timeline-item h4 { font-size: 22px; color: #5c3d2e; margin-bottom: 8px; }
+        .timeline-item p { font-size: 15px; color: #888; }
+
+        /* 结尾页 */
+        .slide-end {
+            background: linear-gradient(135deg, #5c3d2e, #8b5e3c);
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: white;
+        }
+        .slide-end h2 {
+            font-size: 56px;
+            margin-bottom: 30px;
+            letter-spacing: 6px;
+        }
+        .slide-end p {
+            font-size: 24px;
+            opacity: 0.9;
+            letter-spacing: 2px;
+        }
+        .heart { color: #ff6b6b; font-size: 60px; margin-top: 40px; animation: heartbeat 1.5s infinite; }
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        @media print {
+            .slide { display: flex !important; page-break-after: always; height: auto; min-height: 100vh; }
+            .nav, .page-indicator { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- 第1页：封面 -->
+<div class="slide slide-cover active">
+    <div class="icon">📸</div>
+    <h1>家庭照片墙</h1>
+    <p class="subtitle">记录旅途中的每一份美好</p>
+    <div class="badge">
+        <div class="badge-item">
+            <div class="num">20</div>
+            <div class="label">张照片</div>
+        </div>
+        <div class="badge-item">
+            <div class="num">3</div>
+            <div class="label">座城市</div>
+        </div>
+        <div class="badge-item">
+            <div class="num">∞</div>
+            <div class="label">份回忆</div>
+        </div>
+    </div>
+</div>
+
+<!-- 第2页：项目概述 -->
+<div class="slide slide-content">
+    <div class="slide-header">
+        <div class="num">01</div>
+        <h2>项目概述</h2>
+    </div>
+    <div class="two-col">
+        <div class="text-col">
+            <p>这是一款专为家庭旅行记忆打造的<strong>离线相册墙</strong>应用。以广州、深圳等城市足迹为主线，将20张珍贵照片编织成一段温暖的家庭叙事。</p>
+            <div class="highlight-box">
+                <strong>核心定位：</strong>不只是照片存储，更是家庭情感的可视化载体。从广州塔的俯瞰到世界之窗的夜景，每一帧都是不可复制的团聚时光。
+            </div>
+            <div class="highlight-box">
+                <strong>技术形态：</strong>基于纯HTML/CSS/JS构建，支持代码编辑与实时预览双模式，无需后端即可实现完整的相册浏览体验。
+            </div>
+        </div>
+        <div class="cards" style="grid-template-columns: 1fr;">
+            <div class="card">
+                <div class="icon-box">🗺️</div>
+                <h3>足迹地图</h3>
+                <p>覆盖广州塔、深圳世界之窗、地王大厦等标志性景点，用照片串联起城市的地理脉络。</p>
+            </div>
+            <div class="card">
+                <div class="icon-box">👨‍👩‍👧‍👦</div>
+                <h3>家庭叙事</h3>
+                <p>从聚餐合影到海边漫步，记录三代同堂的欢笑瞬间，构建属于家族的独特记忆图谱。</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 第3页：创意亮点 -->
+<div class="slide slide-content">
+    <div class="slide-header">
+        <div class="num">02</div>
+        <h2>创意亮点</h2>
+    </div>
+    <div class="cards">
+        <div class="card">
+            <div class="icon-box">🎨</div>
+            <h3>温暖视觉体系</h3>
+            <p>采用米色暖调背景搭配焦糖色点缀，营造如老照片般的怀旧质感。圆形编号标识与圆角卡片相呼应，整体风格柔和亲切。</p>
+        </div>
+        <div class="card">
+            <div class="icon-box">📐</div>
+            <h3>瀑布流叙事布局</h3>
+            <p>打破传统网格的呆板，采用错落有致的双列瀑布流。风景大片与人物特写交替出现，形成视觉呼吸感，如翻阅实体相册般自然。</p>
+        </div>
+        <div class="card">
+            <div class="icon-box">✍️</div>
+            <h3>场景化文字水印</h3>
+            <p>"广州塔俯瞰""仰望广州塔·蓝天映衬小蛮腰"等诗意标注直接嵌入画面，让每张照片自带故事上下文，无需额外说明。</p>
+        </div>
+        <div class="card">
+            <div class="icon-box">🔢</div>
+            <h3>编号记忆系统</h3>
+            <p>1-20的圆形序号不仅是装饰，更构建了照片的时间索引。从高空俯瞰到地面仰望，编号暗合旅行的时间线与空间逻辑。</p>
+        </div>
+        <div class="card">
+            <div class="icon-box">🌃</div>
+            <h3>昼夜光影对比</h3>
+            <p>同一地标的多时段呈现——白天的广州塔小蛮腰与夜晚世界之窗的灯光秀形成强烈对比，展现旅行的完整时间维度。</p>
+        </div>
+        <div class="card">
+            <div class="icon-box">🎯</div>
+            <h3>情感化数据看板</h3>
+            <p>顶部统计区用"20张照片·3座城市·∞份回忆"的公式，将量化数据转化为情感表达，∞符号巧妙暗示回忆的无限价值。</p>
+        </div>
+    </div>
+</div>
+
+<!-- 第4页：使用亮点 -->
+<div class="slide slide-content">
+    <div class="slide-header">
+        <div class="num">03</div>
+        <h2>使用亮点</h2>
+    </div>
+    <div class="feature-list">
+        <div class="feature-item">
+            <div class="check">✓</div>
+            <div>
+                <h4>完全离线运行</h4>
+                <p>无需服务器，无需网络，所有照片与样式内嵌于单HTML文件。断网环境下依然流畅浏览，适合长辈使用。</p>
+            </div>
+        </div>
+        <div class="feature-item">
+            <div class="check">✓</div>
+            <div>
+                <h4>代码/预览双模式</h4>
+                <p>顶部切换按钮支持实时编辑与即时预览，既是相册也是前端学习工具，满足家庭成员的技术探索欲。</p>
+            </div>
+        </div>
+        <div class="feature-item">
+            <div class="check">✓</div>
+            <div>
+                <h4>零成本部署</h4>
+                <p>单文件架构，可直接保存到手机相册、发送至家庭群或上传网盘。无需域名、服务器或任何维护成本。</p>
+            </div>
+        </div>
+        <div class="feature-item">
+            <div class="check">✓</div>
+            <div>
+                <h4>跨设备兼容</h4>
+                <p>响应式设计适配手机、平板、电脑各种屏幕。家庭聚会时可用电视投屏，成为客厅的数字照片墙。</p>
+            </div>
+        </div>
+        <div class="feature-item">
+            <div class="check">✓</div>
+            <div>
+                <h4>隐私绝对安全</h4>
+                <p>家庭照片不上传任何云端，完全本地存储。避免隐私泄露风险，让珍贵的家庭影像只留在家人手中。</p>
+            </div>
+        </div>
+        <div class="feature-item">
+            <div class="check">✓</div>
+            <div>
+                <h4>无限扩展性</h4>
+                <p>模块化HTML结构，只需复制卡片代码即可添加新照片。从20张到200张，相册规模随家庭记忆同步生长。</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 第5页：情感价值 -->
+<div class="slide slide-content">
+    <div class="slide-header">
+        <div class="num">04</div>
+        <h2>情感价值</h2>
+    </div>
+    <div class="timeline">
+        <div class="timeline-item">
+            <div class="circle">📍</div>
+            <h4>空间记忆</h4>
+            <p>广州塔·深圳湾·地王大厦<br>用脚步丈量城市高度</p>
+        </div>
+        <div class="timeline-item">
+            <div class="circle">🍽️</div>
+            <h4>团聚时刻</h4>
+            <p>圆桌聚餐·举杯共饮<br>食物香气里的亲情温度</p>
+        </div>
+        <div class="timeline-item">
+            <div class="circle">🌊</div>
+            <h4>自然共鸣</h4>
+            <p>海边漫步·浪花飞溅<br>三代同堂的夏日限定</p>
+        </div>
+        <div class="timeline-item">
+            <div class="circle">🌙</div>
+            <h4>永恒定格</h4>
+            <p>夜景霓虹·世界之窗<br>繁华落尽后的家庭灯火</p>
+        </div>
+    </div>
+    <div style="text-align:center; margin-top: 60px; padding: 30px; background: white; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
+        <p style="font-size: 22px; color: #5c3d2e; line-height: 1.8; font-style: italic;">
+            "技术会过时，平台会关闭，但一个保存在家庭群里的HTML文件，<br>
+            可以在十年后依然被轻松打开——这才是数字时代最可靠的遗产。"
+        </p>
+    </div>
+</div>
+
+<!-- 第6页：结尾 -->
+<div class="slide slide-end">
+    <h2>让记忆触手可及</h2>
+    <p>离线家庭相册 · 断网也能看</p>
+    <div class="heart">❤️</div>
+</div>
+
+<!-- 导航 -->
+<div class="nav">
+    <button onclick="prevSlide()">◀</button>
+    <button onclick="nextSlide()">▶</button>
+</div>
+<div class="page-indicator">
+    <span id="current">1</span> / <span id="total">6</span>
+</div>
+
+<script>
+    let current = 0;
+    const slides = document.querySelectorAll('.slide');
+    const total = slides.length;
+    document.getElementById('total').textContent = total;
+
+    function showSlide(n) {
+        slides.forEach(s => s.classList.remove('active'));
+        slides[n].classList.add('active');
+        document.getElementById('current').textContent = n + 1;
+    }
+    function nextSlide() {
+        current = (current + 1) % total;
+        showSlide(current);
+    }
+    function prevSlide() {
+        current = (current - 1 + total) % total;
+        showSlide(current);
+    }
+    document.addEventListener('keydown', e => {
+        if (e.key === 'ArrowRight' || e.key === ' ') nextSlide();
+        if (e.key === 'ArrowLeft') prevSlide();
+    });
+</script>
+</body>
+</html>
